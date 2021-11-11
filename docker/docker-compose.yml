@@ -1,14 +1,14 @@
 version: "3.3"
 services:
-    mariadb-glpi: 
+    glpi-mariadb:
         image: fametec/glpi:9.5.6-mariadb
         restart: unless-stopped
         volumes: 
-          - mariadb-glpi-volume:/var/lib/mysql:rw
+          - glpi-mariadb-volume:/var/lib/mysql:rw
         environment: 
           MYSQL_DATABASE: glpi
-          MYSQL_USER: glpi-user 
-          MYSQL_PASSWORD: glpi-pass 
+          MYSQL_USER: "${DATABASE_USER}"
+          MYSQL_PASSWORD: "${DATABASE_PASSWORD}"
           MYSQL_RANDOM_ROOT_PASSWORD: 1 
         ports: 
           - 3306:3306
@@ -24,16 +24,16 @@ services:
           - glpi-volume-plugins:/var/www/html/plugins:rw
           - glpi-volume-config:/var/www/html/config:rw
         environment: 
-          GLPI_LANG: pt_BR
-          MARIADB_HOST: mariadb-glpi
+#          GLPI_LANG: en_GB
+          MARIADB_HOST: glpi-mariadb
           MARIADB_PORT: 3306
           MARIADB_DATABASE: glpi
-          MARIADB_USER: glpi-user
-          MARIADB_PASSWORD: glpi-pass
+          MARIADB_USER: "${DATABASE_USER}"
+          MARIADB_PASSWORD: "${DATABASE_PASSWORD}"
           VERSION: "9.5.6"
           PLUGINS: "all"
         depends_on: 
-          - mariadb-glpi
+          - glpi-mariadb
         ports: 
           - 80:80
         networks: 
@@ -46,19 +46,20 @@ services:
         image: fametec/glpi:9.5.6-crond
         restart: unless-stopped
         depends_on:
-          - mariadb-glpi
+          - glpi-mariadb
         environment: 
-          MARIADB_HOST: mariadb-glpi
+          MARIADB_HOST: glpi-mariadb
           MARIADB_PORT: 3306
           MARIADB_DATABASE: glpi
-          MARIADB_USER: glpi-user
-          MARIADB_PASSWORD: glpi-pass
+          MARIADB_USER: "${DATABASE_USER}"
+          MARIADB_PASSWORD: "${DATABASE_PASSWORD}"
         volumes: 
           - glpi-volume-files:/var/www/html/files:rw
           - glpi-volume-plugins:/var/www/html/plugins:rw
           - glpi-volume-config:/var/www/html/config:rw
         networks: 
           - glpi-backend
+
 #
 # VOLUMES
 #
@@ -66,7 +67,7 @@ volumes:
   glpi-volume-files:
   glpi-volume-plugins:
   glpi-volume-config:
-  mariadb-glpi-volume: 
+  glpi-mariadb-volume:
 #
 # NETWORKS
 #
